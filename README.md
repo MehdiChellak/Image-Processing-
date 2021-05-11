@@ -65,6 +65,7 @@ if you find this projects usefull please leave a star
 # App Preview
 ![AppGit3](https://user-images.githubusercontent.com/63523451/117861243-823d7580-b291-11eb-8d51-4c22f9af3746.png)
 
-![AppGit](https://user-images.githubusercontent.com/63523451/117861010-3a1e5300-b291-11eb-8c8f-e7b3288f0c69.png)
+![AppGit2](https://user-images.githubusercontent.com/63523451/117861687-fd9f2700-b291-11eb-9713-bc2c1ef105c3.png)
+
 
 
