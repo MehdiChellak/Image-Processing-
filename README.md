@@ -5,7 +5,7 @@ Application desktop about  image processing with python using open-cv, numpy, GU
 - **Date:** `11/05/2021`
 - **Name:** Mehdi Chellak
 - **People active:**  1
-- **projects ** Image Processing
+- **projects** Image Processing
 # Filter high pass
 
 - **gausien**
