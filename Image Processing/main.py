@@ -1,5 +1,5 @@
 from tkinter import *
-
+import scipy.misc as sm
 import cv2
 from PIL import Image
 from PIL import ImageTk
@@ -20,15 +20,20 @@ class MainWindow():
         main.config(menu=self.menubar)
         frame_left = Frame(width=100, height=300, relief=SUNKEN)
         frame_right = Frame()
+        saved_frame = Frame()
 
-        # canvas for image
+        # canvas for image left image
+        self.widthLeftFrame=500
+        self.heightLeftFrame=400
         self.input_left = Label(frame_left, text="input image", font=("Helvetica", 12))
-        self.canvas = Canvas(frame_left, width=500, height=400)
+        self.canvas = Canvas(frame_left, width=self.widthLeftFrame, height=self.heightLeftFrame)
         self.canvas.pack()
-        self.image = PhotoImage(file="")
+
+        
+        self.image = ""
 
         # set first image on canvas
-        self.image_on_canvas = self.canvas.create_image((500 / 2), (400 / 2), anchor=CENTER, image=self.image)
+        self.image_on_canvas = self.canvas.create_image((self.widthLeftFrame / 2), (self.heightLeftFrame / 2), anchor=CENTER, image=self.image)
 
         # button to change image right
         self.button = Button(frame_left, text="Choose ...", height=2, width=40, bg="#F3C007", command=self.onButton)
@@ -36,22 +41,31 @@ class MainWindow():
         self.input_left.place(x=20, y=20)
         self.input_left.pack()
 
+        # file path & init
+        self.file_path = "butterfly.png"
+        self.onButton()
+
         # seconde frame
+        # save the right image
         # canvas for image
+        # width and the hight of canvas
+        self.savedImage=""
+        self.widthRightFrame=500
+        self.heightRightFrame=450
         self.input_right = Label(frame_right, text="output image", font=("Helvetica", 12))
         self.label_right = Label(frame_right)
-        self.canvas_right = Canvas(frame_right, width=500, height=400)
-        self.canvas_right.grid(row=0, column=3)
-        self.input_right.grid(row=1, column=3)
+        self.canvas_right = Canvas(frame_right, width=self.widthRightFrame, height=self.heightRightFrame)
+        self.canvas_right.grid(row=1, column=3)
+        self.input_right.grid(row=3, column=3)
         self.image_right = PhotoImage(file="")
 
         # set first image on canvas
-        self.image_on_canvas_right = self.canvas_right.create_image((500 / 2), (400 / 2), anchor=CENTER, image=self.image_right)
+        self.image_on_canvas_right = self.canvas_right.create_image((self.widthRightFrame / 2), (self.heightRightFrame / 2), anchor=CENTER, image=self.image_right)
+        self.saveButton = Button(frame_right, text="Save", height=2, width=20, bg="#F3C007",command=self.saveImageOnHard)
+        self.saveButton.grid(row=2, column=3)
         frame_left.pack(side=LEFT, padx=100, pady=10)
         frame_right.pack(side=RIGHT, padx=50, pady=10)
-
-        # file path
-        self.file_path = ""
+        saved_frame.pack()
 
         ## filtre pass haut or hight filter
         self.menuFiltreHaut()
@@ -59,7 +73,7 @@ class MainWindow():
         ## low filter menu
         self.passBas()
 
-        ## bruit menu or blur menu 
+        ## bruit menu or blur menu save
         self.bruitMenu()
 
         ## operation elementaire or additional operation
@@ -88,8 +102,9 @@ class MainWindow():
         return imgcvr
 
     def saveToRight(self, imagecv):
-        imagecv = cv2.resize(imagecv, (round(500), round(400)), interpolation=cv2.INTER_AREA)
+        imagecv = cv2.resize(imagecv, (round(self.widthRightFrame), round(self.heightRightFrame)), interpolation=cv2.INTER_AREA)
         img = Image.fromarray(imagecv)
+        self.savedImage = imagecv # in case of saved image on your hard with open cv goto saveImageOnHard() function
         img = ImageTk.PhotoImage(img)
         self.image_right = img
         self.canvas_right.itemconfig(self.image_on_canvas_right, image=self.image_right)
@@ -107,8 +122,15 @@ class MainWindow():
         img_right = img_right.resize((width, height), Image.ANTIALIAS)
         photoImg_right = ImageTk.PhotoImage(img_right)
         self.image = photoImg_right
+    
+    def save(self):
 
-        ### -------------------------------- high pass filtres------------------------------##
+        print("salam")
+    
+    def saveImageOnHard(self):
+        img= self.savedImage
+        cv2.imwrite("yourImageSaved.png",img)
+    ### -------------------------------- high pass filtres------------------------------##
 
     def menuFiltreHaut(self):
         menuFiltre2 = Menu(self.menubar, tearoff=0)
