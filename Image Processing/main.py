@@ -7,8 +7,11 @@ from tkinter import filedialog
 import numpy as np
 from scipy import ndimage
 import matplotlib.pyplot as plt
-from Susan import Susan
-from Fourier import Fourier
+#from Susan import Susan
+#from Fourier import Fourier
+#from contraste import  *
+from skimage import data
+from skimage.color import rgb2gray
 
 
 class MainWindow():
@@ -18,13 +21,30 @@ class MainWindow():
         main.geometry('700x600')
         self.menubar = Menu(main)
         main.config(menu=self.menubar)
-        frame_left = Frame(width=100, height=300, relief=SUNKEN)
-        frame_right = Frame()
-        saved_frame = Frame()
+        frame_left = Frame(width=100, height=300, relief=SOLID,bd=3)
+        frame_right = Frame(relief=SOLID,bd=3)
+        top_frame = Frame(frame_left)
 
+        label = Label(top_frame, text="Contrast")
+        label.grid(row = 0, column = 0, sticky = W, pady = 2)
+
+        self.w2 = Scale(top_frame, name="contrast",from_=0, to=255, length=300, tickinterval=20, orient=HORIZONTAL )
+        self.w2.set(23)
+        self.w2.grid(row = 0, column = 1,)
+
+        label = Label(top_frame, text="brightness")
+        label.grid(row = 1, column = 0, sticky = W, )
+
+        self.w1 = Scale(top_frame, name="brightness", from_=0, to=255*2, length=300, orient=HORIZONTAL)
+        self.w1.set(23)
+        self.w1.grid(row = 1, column = 1, sticky = W, pady = 2)
+
+        Button(top_frame, text='Show',width=20, height=1, bg='black' ,fg='white',activebackground='#345',activeforeground='white', padx=5, pady=5,command=self.show_values).grid(row=2,column=1)
+
+        top_frame.pack(side=TOP, anchor=NW,padx=50, pady=0)
         # canvas for image left image
         self.widthLeftFrame=500
-        self.heightLeftFrame=400
+        self.heightLeftFrame=450
         self.input_left = Label(frame_left, text="input image", font=("Helvetica", 12))
         self.canvas = Canvas(frame_left, width=self.widthLeftFrame, height=self.heightLeftFrame)
         self.canvas.pack()
@@ -42,8 +62,7 @@ class MainWindow():
         self.input_left.pack()
 
         # file path & init
-        self.file_path = "butterfly.png"
-        self.onButton()
+        self.file_path = "images/susan_input1.png"
 
         # seconde frame
         # save the right image
@@ -63,9 +82,8 @@ class MainWindow():
         self.image_on_canvas_right = self.canvas_right.create_image((self.widthRightFrame / 2), (self.heightRightFrame / 2), anchor=CENTER, image=self.image_right)
         self.saveButton = Button(frame_right, text="Save", height=2, width=20, bg="#F3C007",command=self.saveImageOnHard)
         self.saveButton.grid(row=2, column=3)
-        frame_left.pack(side=LEFT, padx=100, pady=10)
-        frame_right.pack(side=RIGHT, padx=50, pady=10)
-        saved_frame.pack()
+        frame_left.pack(side=LEFT, padx=100, pady=5)
+        frame_right.pack(side=RIGHT, padx=50, pady=5)
 
         ## filtre pass haut or hight filter
         self.menuFiltreHaut()
@@ -83,7 +101,7 @@ class MainWindow():
         self.morphologyMaths()
 
         ## susan
-        self.susan()
+        self.edges()
 
         ## Fast Fourier Transform FFT
         self.fft()
@@ -92,6 +110,10 @@ class MainWindow():
         self.callToSelect()
         self.canvas.itemconfig(self.image_on_canvas, image=self.image)
 
+    def show_values(self):
+        img = self.read()
+        new = BrightnessContrast(img,self.w1.get(),self.w2.get())
+        self.saveToRight(new)
     # read image and return it
     def read(self):
         path = self.file_path
@@ -110,8 +132,8 @@ class MainWindow():
         self.canvas_right.itemconfig(self.image_on_canvas_right, image=self.image_right)
 
     def callToSelect(self):
-        width = 450
-        height = 400
+        width = self.widthLeftFrame
+        height = self.heightLeftFrame
         filepath = filedialog.askopenfilenames(
             title="Choose a file",
             filetypes=[
@@ -124,31 +146,24 @@ class MainWindow():
         self.image = photoImg_right
     
     def save(self):
-
         print("salam")
     
     def saveImageOnHard(self):
         img= self.savedImage
-        cv2.imwrite("yourImageSaved.png",img)
-    ### -------------------------------- high pass filtres------------------------------##
+        cv2.imwrite("output/yourImageSaved.png",img)
 
+
+    ### -------------------------------- high pass filtres------------------------------##
     def menuFiltreHaut(self):
         menuFiltre2 = Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="Filtre pass haut", menu=menuFiltre2)
-        menuFiltre2.add_command(label="Gaussien", command=self.FGaussien)
         menuFiltre2.add_command(label="Gradient", command=self.gradient)
         menuFiltre2.add_command(label="Laplacian", command=self.laplacian)
-
-    def FGaussien(self):
-        img = self.read()
-        kernel = np.array(
-            [
-                [-1, -1, -1],
-                [-1, 8, -1],
-                [-1, -1, -1]
-            ])
-        highpass_3x3 = ndimage.convolve(img, kernel)
-        self.saveToRight(highpass_3x3)
+        menuFiltre2.add_command(label="Kirsch", command=self.kirsch)
+        menuFiltre2.add_command(label="Sobel", command=self.sobel)
+        menuFiltre2.add_command(label="Prewitt", command=self.prewitt)
+        menuFiltre2.add_command(label="Poberts", command=self.roberts)
+        menuFiltre2.add_command(label="Canny", command=self.canny)
 
     def gradient(self):
         img = self.read()
@@ -157,9 +172,74 @@ class MainWindow():
 
     def laplacian(self):
         img = self.read()
-        laplacian = cv2.Laplacian(img, cv2.CV_64F)
+        kernel = np.array(
+            [
+                [0, 1, 0],
+                [1, -4, 1],
+                [0, 1, 0]
+            ])
+        laplacian = ndimage.convolve(img, kernel)
+        #laplacian = cv2.Laplacian(img, cv2.CV_64F) #with opencv
         self.saveToRight(laplacian)
 
+    def kirsch(self):
+        img = self.read()
+        kernel = np.array(
+            [
+                [-3, -3, -3],
+                [5, 0, -3],
+                [5, 5, -3]
+            ])
+        kirsh = ndimage.convolve(img, kernel)
+        self.saveToRight(kirsh)
+
+    def SP(self,c):
+        img = self.read()
+
+        hs1 = np.array(
+            [
+                [1, c, 1],
+                [0, 0, 0],
+                [-1, -c, -1]
+            ])
+        hs2 = np.array(
+            [
+                [1, 0, 1],
+                [c, 0, c],
+                [1, 0, 1]
+            ])
+        abs1 = np.abs(ndimage.convolve(img, hs1))
+        abs2 = np.abs(ndimage.convolve(img, hs2))
+        image = abs1 + abs2
+        self.saveToRight(image)
+    def sobel(self):
+        self.SP(2)
+
+    def prewitt(self):
+        self.SP(1)
+
+    def roberts(self):
+        img = self.read()
+
+        hs1 = np.array(
+            [
+                [0, -1],
+                [1, 0]
+            ])
+        hs2 = np.array(
+            [
+                [-1, 0],
+                [0, 1]
+            ])
+        abs1 = np.abs(ndimage.convolve(img, hs1))
+        abs2 = np.abs(ndimage.convolve(img, hs2))
+        image = abs1 + abs2
+        self.saveToRight(image)
+
+    def canny(self):
+        img = self.read()
+        edges = cv2.Canny(img, 100, 200)
+        self.saveToRight(edges)
         ### -------------------------------- low pass filters------------------------------##
     def passBas(self):
         menuFiltre1 = Menu(self.menubar, tearoff=0)
@@ -167,10 +247,10 @@ class MainWindow():
         menuFiltre1.add_cascade(label="Bilateral Filter", command=self.bilaterale)
         menuFiltre1.add_command(label="Moyenneur", command=self.ImageMoyenne)
         menuFiltre1.add_command(label="Median", command=self.FiltreMedian)
+        menuFiltre1.add_command(label="Gaussien 3x3", command=self.FGaussien)
 
     def FiltreMedian(self):
         img = self.read()
-        print("img =", img [0] [0])
         temp = np.zeros(9)
         for i in range(1, img.shape [0] - 1):
             for j in range(1, img.shape [1] - 1):
@@ -195,11 +275,25 @@ class MainWindow():
                     t [j] = f
         return t [4]
 
+    def FGaussien(self):
+        img = self.read()
+        kernel = (1/16)*np.array(
+            [
+                [1, 2, 1],
+                [2, 4, 2],
+                [1, 2, 1]
+            ])
+        pass_3x3 = ndimage.convolve(img, kernel)
+        self.saveToRight(pass_3x3)
+
     # filter average
     def ImageMoyenne(self):
         img = self.read()
-        newImg = cv2.blur(img, (3, 3))
-        self.saveToRight(newImg)
+        kernel = (1/9)*np.ones((3,3))
+        print(kernel)
+        lowpass_3x3 = ndimage.convolve(img, kernel)
+        #newImg = cv2.blur(img, (3, 3)) with open cv
+        self.saveToRight(lowpass_3x3)
 
     def bilaterale(self):
         img = self.read()
@@ -211,7 +305,7 @@ class MainWindow():
         menuBruit = Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="Bruit", menu=menuBruit)
         menuBruit.add_command(label="Poiver et sel ", command=self.poivreAndSel)
-        menuBruit.add_command(label="Gaussien")
+        menuBruit.add_command(label="Gaussien", command=self.gaussianNoise)
 
     def poivreAndSel(self):
         image = self.read()
@@ -230,6 +324,20 @@ class MainWindow():
         out [coords] = 0
         self.saveToRight(out)
 
+    def gaussianNoise(self):
+        #img = self.read()
+        img = cv2.imread(self.file_path, 1)
+        img = cv2.resize(img, (400, 350))
+        row, col, ch = img.shape
+        mean = 0
+        var = 0.1
+        sigma = var ** 0.1
+        gauss = np.random.normal(mean, sigma, img.shape)
+        gauss = gauss.reshape(row, col, ch)
+        noisyImage = img + gauss
+        noisyImage = rgb2gray(noisyImage)
+        self.saveToRight(noisyImage)
+
     # ------------------------------- transformation elementary ----------------+----------#
     def transElem(self):
         menuTransformation = Menu(self.menubar, tearoff=0)
@@ -239,7 +347,6 @@ class MainWindow():
         menuTransformation.add_command(label="Miroir Vertical", command=self.inverseParColon)
         menuTransformation.add_command(label="Miroir horizontal", command=self.inverseParLinge)
         menuTransformation.add_command(label="Histogramme", command=self.hist)
-        menuTransformation.add_command(label="conversion image", command=self.convertColor)
 
     # gray image
     def NiveauGray(self):
@@ -280,7 +387,6 @@ class MainWindow():
         img = self.read()
         convertedImage = 255 - img
         self.saveToRight(convertedImage)
-
     # ------------------------------------- morphology Mathematics ------------------------------#
     def morphologyMaths(self):
         Morphologie = Menu(self.menubar, tearoff=0)
@@ -363,12 +469,12 @@ class MainWindow():
         self.saveToRight(conteurIn)
 
     # ---------------------------------------detection of susan  ----------------------------#
-    def susan(self):
+    def edges(self):
         detection = Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="Detection edge", menu=detection)
         detection.add_command(label="Susan", command=self.susanFunction)
         detection.add_command(label="Hariss", command=self.harris)
-        detection.add_command(label="Canny", command=self.canny)
+
 
     def susanFunction(self):
         s = Susan(self.file_path)
@@ -386,11 +492,6 @@ class MainWindow():
         # Threshold for an optimal value, it may vary depending on the image.
         img [dst > 0.01 * dst.max()] = [0, 0, 255]
         self.saveToRight(img)
-
-    def canny(self):
-        img = self.read()
-        edges = cv2.Canny(img, 100, 200)
-        self.saveToRight(edges)
 
     # --------------------------------------TFF---------------------------------------------#
     def fft(self):

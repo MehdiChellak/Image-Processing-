@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-img = cv2.imread("../butterfly.png")[..., ::-1] / 255.0
+img = cv2.imread("../images/butterfly.png")[..., ::-1] / 255.0
 noise =  np.random.normal(loc=0, scale=1, size=img.shape)
 
 # noise overlaid over image

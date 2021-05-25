@@ -1,7 +1,7 @@
 import numpy as np
 import cv2 as cv
 from matplotlib import pyplot as plt
-img = cv.imread('../butterfly.png', 1)
+img = cv.imread('../images/butterfly.png', 1)
 edges = cv.Canny(img,100,200)
 
 rgb = cv.cvtColor(edges, cv.COLOR_GRAY2RGB) # RGB for matplotlib, BGR for imshow() !
