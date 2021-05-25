@@ -67,5 +67,11 @@ if you find this projects usefull please leave a star
 
 ![AppGit2](https://user-images.githubusercontent.com/63523451/117861687-fd9f2700-b291-11eb-9713-bc2c1ef105c3.png)
 
+```
+some additons to GUI 
+```
+![savedButton](https://user-images.githubusercontent.com/63523451/118415331-fb7e0380-b6a9-11eb-8dc4-1336a479d674.png)
+
+
 
 
