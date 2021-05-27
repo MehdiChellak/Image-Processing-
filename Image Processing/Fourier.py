@@ -85,6 +85,7 @@ class Fourier():
 
     # show in 4 plot with details
     def showInPlot(self,fshift_mask_mag,img_back):
+        
         plt.subplot(2, 2, 1), plt.imshow(self.img, cmap='gray')
         plt.title('Input Image'), plt.xticks([]), plt.yticks([])
         plt.subplot(2, 2, 2), plt.imshow(self.magnitudeSpec(), cmap='gray')
@@ -94,3 +95,4 @@ class Fourier():
         plt.subplot(2, 2, 4), plt.imshow(img_back, cmap='gray')
         plt.title('After FFT Inverse'), plt.xticks([]), plt.yticks([])
         plt.show()
+        plt.savefig("fft.png")

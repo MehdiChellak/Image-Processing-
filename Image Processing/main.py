@@ -7,9 +7,9 @@ from tkinter import filedialog
 import numpy as np
 from scipy import ndimage
 import matplotlib.pyplot as plt
-#from Susan import Susan
-#from Fourier import Fourier
-#from contraste import  *
+from Susan import Susan
+from Fourier import Fourier
+from contraste import  *
 from skimage import data
 from skimage.color import rgb2gray
 
@@ -35,7 +35,7 @@ class MainWindow():
         label = Label(top_frame, text="brightness")
         label.grid(row = 1, column = 0, sticky = W, )
 
-        self.w1 = Scale(top_frame, name="brightness", from_=0, to=255*2, length=300, orient=HORIZONTAL)
+        self.w1 = Scale(top_frame, name="brightness", from_=0, to=255*2, length=300,  tickinterval=40, orient=HORIZONTAL)
         self.w1.set(23)
         self.w1.grid(row = 1, column = 1, sticky = W, pady = 2)
 
@@ -387,6 +387,7 @@ class MainWindow():
         img = self.read()
         convertedImage = 255 - img
         self.saveToRight(convertedImage)
+        
     # ------------------------------------- morphology Mathematics ------------------------------#
     def morphologyMaths(self):
         Morphologie = Menu(self.menubar, tearoff=0)
