@@ -63,14 +63,18 @@ if you find this projects usefull please leave a star
 - Twitter [Me](https://twitter.com/sin_moody)
 
 # App Preview
-![AppGit3](https://user-images.githubusercontent.com/63523451/117861243-823d7580-b291-11eb-8d51-4c22f9af3746.png)
+![AppGit](https://user-images.githubusercontent.com/63523451/120047300-864cef80-c014-11eb-874a-2a49e896dd7c.png)
 
-![AppGit2](https://user-images.githubusercontent.com/63523451/117861687-fd9f2700-b291-11eb-9713-bc2c1ef105c3.png)
+
 
 ```
 some additons to GUI 
 ```
-![savedButton](https://user-images.githubusercontent.com/63523451/118415331-fb7e0380-b6a9-11eb-8dc4-1336a479d674.png)
+![AppGit2](https://user-images.githubusercontent.com/63523451/120047283-7fbe7800-c014-11eb-853f-79929ec2cacf.png)
+
+![AppGit3](https://user-images.githubusercontent.com/63523451/120047297-85b45900-c014-11eb-8e8d-e2250606f2aa.png)
+
+
 
 
 
