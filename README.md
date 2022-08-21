@@ -1,5 +1,5 @@
 ```
-Application desktop about  image processing with python using open-cv, numpy, GUI, matplotlib packages 
+Desktop application for processing images with Python using the open-cv, numpy, GUI, and matplotlib packages
 ```
 # About
 - **Date:** `11/05/2021`
